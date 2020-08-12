@@ -66,7 +66,7 @@ impl Balances for AdvancaRuntime {
 }
 
 impl AdvancaCore for AdvancaRuntime {
-    // type Currency = <Self as Balances>::Balance;
+    type TaskId = sp_core::H256;
 }
 
 impl Sudo for AdvancaRuntime {}
