@@ -72,6 +72,7 @@ mod metadata;
 mod rpc;
 mod runtimes;
 mod subscription;
+pub mod advanca;
 
 pub use crate::{
     error::Error,
