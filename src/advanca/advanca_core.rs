@@ -31,10 +31,23 @@ use codec::{
 };
 use core::marker::PhantomData;
 use std::fmt::Debug;
+use advanca_core::Enclave;
 
 /// The subset of the `advanca_core::Trait` that a client must implement.
 #[module]
 pub trait AdvancaCore: System + Balances {}
+
+
+// #[derive(Encode, Decode, Default, RuntimeDebug, PartialEq, Eq, Clone)]
+// /// The public information about an Enclave
+// pub struct Enclave<AccountId> {
+//     /// Enclave account on chain
+//     pub account_id: AccountId,
+//     /// Enclave public key for encryption
+//     pub public_key: Vec<u8>,
+//     /// Enclave attestation information which certifies all the other fields
+//     pub attestation: Vec<u8>,
+// }
 
 /// Register user
 #[derive(Clone, Debug, PartialEq, Call, Encode)]
@@ -58,7 +71,7 @@ pub struct RegisterWorkerCall<T: AdvancaCore> {
     /// The deposit that registration needs
     pub deposit: <T as Balances>::Balance,
     /// The public key of enclave
-    pub enclave: Vec<u8>
+    pub enclave: Enclave<<T as System>::AccountId>,
 }
 
 /// Deregister worker
@@ -68,18 +81,67 @@ pub struct DeregisterWorkerCall<T: AdvancaCore> {
     pub _runtime: PhantomData<T>
 }
 
-/// Event indicating a new user is registered
+/// Event: UserAdded
 #[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
 pub struct UserAddedEvent<T: AdvancaCore> {
-    /// The registered user
+    /// User account
     pub user: <T as System>::AccountId,
 }
 
-/// Event indicating a new user is registered
+/// Event: UserRemoved
 #[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
 pub struct UserRemovedEvent<T: AdvancaCore> {
-    /// The registered user
+    /// User account
     pub user: <T as System>::AccountId,
+}
+
+/// Event: TaskSubmitted
+#[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
+pub struct TaskSubmittedEvent<T: AdvancaCore> {
+    /// Task ID
+    pub task_id: <T as System>::Hash,
+}
+
+/// Event: TaskUpdated
+#[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
+pub struct TaskUpdatedEvent<T: AdvancaCore> {
+    /// Task ID
+    pub task_id: <T as System>::Hash,
+}
+
+/// Event: TaskAccepted
+#[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
+pub struct TaskAcceptedEvent<T: AdvancaCore> {
+    /// Task ID
+    pub task_id: <T as System>::Hash,
+}
+
+/// Event: TaskCompleted
+#[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
+pub struct TaskCompletedEvent<T: AdvancaCore> {
+    /// Task ID
+    pub task_id: <T as System>::Hash,
+}
+
+/// Event: TaskAborted
+#[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
+pub struct TaskAbortedEvent<T: AdvancaCore> {
+    /// Task ID
+    pub task_id: <T as System>::Hash,
+}
+
+/// Event: WorkerAdded
+#[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
+pub struct WorkerAddedEvent<T: AdvancaCore> {
+    /// Worker account
+    pub worker: <T as System>::AccountId,
+}
+
+/// Event: WorkerRemoved
+#[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
+pub struct WorkerRemovedEvent<T: AdvancaCore> {
+    /// Worker account
+    pub worker: <T as System>::AccountId,
 }
 
 #[cfg(test)]
@@ -90,6 +152,7 @@ mod tests {
             PairSigner,
             Signer,
         },
+        Runtime,
     };
     use sp_keyring::AccountKeyring;
     use crate::advanca::tests::{
@@ -125,6 +188,46 @@ mod tests {
             .unwrap();
         let expected_event = UserRemovedEvent {
             user: alice.account_id().clone()
+        };
+
+        assert_eq!(event, expected_event);
+    }
+
+    #[async_std::test]
+    async fn test_worker_registration() {
+        let alice = PairSigner::<TestRuntime, _>::new(AccountKeyring::Alice.pair());
+        let bob = PairSigner::<TestRuntime, _>::new(AccountKeyring::Bob.pair());
+        let (client, _) = test_client().await;
+
+        let enclave = Enclave::<<TestRuntime as System>::AccountId> {
+            account_id: bob.account_id().clone(),
+            public_key: "bob".as_bytes().to_vec(),
+            attestation: "attestation".as_bytes().to_vec(),
+        };
+
+        // registration
+        let event = client
+            .register_worker_and_watch(&alice, 10_000, enclave)
+            .await
+            .unwrap()
+            .worker_added()
+            .unwrap()
+            .unwrap();
+        let expected_event = WorkerAddedEvent {
+            worker: alice.account_id().clone()
+        };
+        assert_eq!(event, expected_event);
+
+        // deregistration
+        let event = client
+            .deregister_worker_and_watch(&alice)
+            .await
+            .unwrap()
+            .worker_removed()
+            .unwrap()
+            .unwrap();
+        let expected_event = WorkerRemovedEvent {
+            worker: alice.account_id().clone()
         };
 
         assert_eq!(event, expected_event);
