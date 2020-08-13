@@ -254,10 +254,14 @@ fn task_id<T: AdvancaCore>(account_id: &<T as System>::AccountId, account_nonce:
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::frame::system::AccountStoreExt;
+    use crate::frame::{
+        system::AccountStoreExt,
+        balances::*,
+    };
     use crate::advanca::tests::{test_client, TestRuntime};
     use crate::extrinsic::{PairSigner, Signer};
     use sp_keyring::AccountKeyring;
+    use sp_core::{crypto::Pair, sr25519};
 
     #[async_std::test]
     async fn test_user_registration() {
@@ -301,6 +305,35 @@ mod tests {
 
         assert_eq!(event, expected_event);
     }
+
+    #[async_std::test]
+    async fn test_new_account_transferring() {
+        let alice = PairSigner::<TestRuntime, _>::new(AccountKeyring::Alice.pair());
+
+        let (client, _) = test_client().await;
+
+        let (user_keypair, _) = sr25519::Pair::generate();
+        let user_account = user_keypair.public().as_array_ref().to_owned().into();
+        let user = PairSigner::new(user_keypair);
+
+        client.transfer_and_watch(&alice, &user_account, 10_000_000_000).await.unwrap();
+
+        let event = client.transfer_and_watch(&user, &AccountKeyring::Alice.to_account_id(), 10)
+            .await
+            .unwrap()
+            .transfer()
+            .unwrap()
+            .unwrap();
+
+        let expected_event = TransferEvent {
+            from: user_account,
+            to: AccountKeyring::Alice.to_account_id(),
+            amount: 10,
+        };
+
+        assert_eq!(event, expected_event);
+    }
+
 
     #[async_std::test]
     async fn test_worker_registration() {
