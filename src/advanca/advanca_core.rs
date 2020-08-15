@@ -19,7 +19,7 @@ use crate::frame::{
     balances::{Balances, BalancesEventsDecoder},
     system::{System, SystemEventsDecoder},
 };
-use advanca_core::{Duration, Enclave, Privacy, TaskSpec, Ciphertext, User, Worker, Task, TaskStatus};
+use advanca_node_primitives::{Duration, Enclave, Privacy, TaskSpec, Ciphertext, User, Worker, Task, TaskStatus};
 use codec::{Decode, Encode};
 use core::marker::PhantomData;
 use frame_support::Parameter;
