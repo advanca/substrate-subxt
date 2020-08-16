@@ -35,6 +35,7 @@ use crate::{
         balances::{
             AccountData,
             Balances,
+            Status,
         },
         contracts::Contracts,
         sudo::Sudo,
@@ -78,6 +79,7 @@ impl System for DefaultNodeRuntime {
 
 impl Balances for DefaultNodeRuntime {
     type Balance = u128;
+    type Status = Status;
 }
 
 impl Contracts for DefaultNodeRuntime {}
@@ -112,6 +114,7 @@ impl System for NodeTemplateRuntime {
 
 impl Balances for NodeTemplateRuntime {
     type Balance = u128;
+    type Status = Status;
 }
 
 impl Sudo for NodeTemplateRuntime {}
@@ -144,4 +147,5 @@ impl System for KusamaRuntime {
 
 impl Balances for KusamaRuntime {
     type Balance = u128;
+    type Status = Status;
 }

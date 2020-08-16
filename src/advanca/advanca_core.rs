@@ -417,7 +417,6 @@ mod tests {
 
     #[async_std::test]
     async fn test_task_submission() {
-        let _ = env_logger::try_init();
         let alice = PairSigner::<TestRuntime, _>::new(AccountKeyring::Alice.pair());
         let (client, _) = test_client().await;
 
@@ -451,5 +450,78 @@ mod tests {
         let unscheduled_tasks = client.unscheduled_tasks(None).await.unwrap();
 
         assert_eq!(unscheduled_tasks, vec![task_id_alice]);
+    }
+
+    #[async_std::test]
+    async fn test_complete_task() {
+        let user = PairSigner::new(AccountKeyring::Alice.pair());
+        let worker = PairSigner::new(AccountKeyring::Bob.pair());
+        let worker_account = AccountKeyring::Bob.to_account_id();
+
+        let (client, _) = test_client().await;
+
+        let task_id = client
+            .submit_task_and_watch(
+                &user,
+                "signed_owner_task_pubkey".into(),
+                0,
+                Default::default(),
+            )
+            .await
+            .unwrap()
+            .task_submitted()
+            .unwrap()
+            .unwrap()
+            .task_id;
+
+        assert_eq!(
+            worker_account,
+            client
+                .register_worker_and_watch(&worker, 10_000_000_000, Default::default())
+                .await
+                .unwrap()
+                .worker_added()
+                .unwrap()
+                .unwrap()
+                .worker
+        );
+
+        assert_eq!(
+            task_id.clone(),
+            client
+                .accept_task_and_watch(
+                    &worker,
+                    task_id,
+                    Default::default(),
+                    Default::default()
+                )
+                .await
+                .unwrap()
+                .task_accepted()
+                .unwrap()
+                .unwrap()
+                .task_id
+        );
+
+        client
+            .submit_task_evidence_and_watch(
+                &worker,
+                task_id,
+                vec!["evidence1".into(), "evidence2".into()],
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(
+            task_id.clone(),
+            client
+                .complete_task_and_watch(&worker, task_id)
+                .await
+                .unwrap()
+                .task_completed()
+                .unwrap()
+                .unwrap()
+                .task_id
+        );
     }
 }

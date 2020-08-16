@@ -21,6 +21,7 @@ use crate::{
         balances::{
             AccountData,
             Balances,
+            Status,
         },
         sudo::Sudo,
         system::System,
@@ -61,6 +62,7 @@ impl System for AdvancaRuntime {
 
 impl Balances for AdvancaRuntime {
     type Balance = u128;
+    type Status = Status;
 }
 
 impl AdvancaCore for AdvancaRuntime {

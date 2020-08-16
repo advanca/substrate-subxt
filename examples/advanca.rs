@@ -13,22 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use async_std::task;
 use log::info;
 use sp_core::{
     crypto::Pair,
     sr25519,
 };
 use sp_keyring::AccountKeyring;
-use std::time::Duration;
 use substrate_subxt::{
-    advanca::{
-        advanca_core::{
-            RegisterUserCallExt,
-            UserAddedEventExt,
-        },
-        AdvancaRuntime,
-    },
+    advanca::AdvancaRuntime,
     balances::{
         TransferCallExt,
         TransferEventExt,

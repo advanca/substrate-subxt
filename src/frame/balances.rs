@@ -47,6 +47,23 @@ pub trait Balances: System {
         + MaybeSerialize
         + Debug
         + From<<Self as System>::BlockNumber>;
+    /// The status of balance
+    type Status: Parameter + Member + Copy + codec::Codec + Default + Debug;
+}
+
+/// Imported from frame_support::traits::BalanceStatus
+#[derive(PartialEq, Eq, Clone, Copy, Encode, Decode, Debug)]
+pub enum Status {
+    /// Funds are free, as corresponding to `free` item in Balances.
+    Free,
+    /// Funds are reserved, as corresponding to `reserved` item in Balances.
+    Reserved,
+}
+
+impl std::default::Default for Status {
+    fn default() -> Self {
+        Status::Free
+    }
 }
 
 /// The total issuance of the balances module.
@@ -81,6 +98,19 @@ pub struct TransferEvent<T: Balances> {
     pub to: <T as System>::AccountId,
     /// Amount of balance that was transfered.
     pub amount: T::Balance,
+}
+
+/// ReserveRepatriated event.
+#[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
+pub struct ReserveRepatriatedEvent<T: Balances> {
+    /// From account
+    pub from: <T as System>::AccountId,
+    /// To account
+    pub to: <T as System>::AccountId,
+    /// Amount
+    pub balance: T::Balance,
+    /// Destation balance type
+    pub destination_status: Status,
 }
 
 #[cfg(test)]
