@@ -64,6 +64,7 @@ pub use sp_runtime::traits::SignedExtension;
 pub use sp_version::RuntimeVersion;
 use std::marker::PhantomData;
 
+pub mod advanca;
 mod error;
 mod events;
 pub mod extrinsic;
@@ -72,7 +73,6 @@ mod metadata;
 mod rpc;
 mod runtimes;
 mod subscription;
-pub mod advanca;
 
 pub use crate::{
     error::Error,

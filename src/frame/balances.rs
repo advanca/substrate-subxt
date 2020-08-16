@@ -26,13 +26,13 @@ use codec::{
 };
 use core::marker::PhantomData;
 use frame_support::Parameter;
+pub use pallet_balances::AccountData;
 use sp_runtime::traits::{
     AtLeast32Bit,
     MaybeSerialize,
     Member,
 };
 use std::fmt::Debug;
-pub use pallet_balances::AccountData;
 
 /// The subset of the `pallet_balances::Trait` that a client must implement.
 #[module]

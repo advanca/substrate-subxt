@@ -13,19 +13,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //! Advanca runtime definition and pallets definitions
-pub use runtime::AdvancaRuntime;
 pub use self::advanca_core::AdvancaCore;
+pub use runtime::AdvancaRuntime;
 
-pub mod runtime;
 pub mod advanca_core;
-
+pub mod runtime;
 
 #[cfg(test)]
-pub use tests::{test_client, test_client_with};
+pub use tests::{
+    test_client,
+    test_client_with,
+};
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{
+        Client,
+        ClientBuilder,
+    };
     use sp_keyring::AccountKeyring;
     use substrate_subxt_client::{
         DatabaseConfig,
@@ -34,14 +40,11 @@ mod tests {
         SubxtClient,
         SubxtClientConfig,
     };
-    use crate::{Client, ClientBuilder};
     use tempdir::TempDir;
 
     pub type TestRuntime = AdvancaRuntime;
 
-    pub async fn test_client_with(
-        key: AccountKeyring,
-    ) -> (Client<TestRuntime>, TempDir) {
+    pub async fn test_client_with(key: AccountKeyring) -> (Client<TestRuntime>, TempDir) {
         env_logger::try_init().ok();
         let tmp = TempDir::new("subxt-").expect("failed to create tempdir");
         let config = SubxtClientConfig {

@@ -16,19 +16,40 @@
 //! Implements support for the advanca-core module.
 
 use crate::frame::{
-    balances::{Balances, BalancesEventsDecoder},
-    system::{System, SystemEventsDecoder},
+    balances::{
+        Balances,
+        BalancesEventsDecoder,
+    },
+    system::{
+        System,
+        SystemEventsDecoder,
+    },
 };
-use advanca_node_primitives::{Duration, Enclave, Privacy, TaskSpec, Ciphertext, User, Worker, Task, TaskStatus};
-use codec::{Decode, Encode};
+use advanca_node_primitives::{
+    Ciphertext,
+    Duration,
+    Enclave,
+    Privacy,
+    Task,
+    TaskSpec,
+    TaskStatus,
+    User,
+    Worker,
+};
+use codec::{
+    Decode,
+    Encode,
+};
 use core::marker::PhantomData;
 use frame_support::Parameter;
-use sp_runtime::{
-    traits::{
-        CheckEqual, Hash,
-        MaybeDisplay, MaybeMallocSizeOf, MaybeSerializeDeserialize, Member,
-        SimpleBitOps,
-    },
+use sp_runtime::traits::{
+    CheckEqual,
+    Hash,
+    MaybeDisplay,
+    MaybeMallocSizeOf,
+    MaybeSerializeDeserialize,
+    Member,
+    SimpleBitOps,
 };
 use std::fmt::Debug;
 
@@ -36,7 +57,6 @@ use std::fmt::Debug;
 #[module]
 pub trait AdvancaCore: System + Balances {
     /// The type of task's id
-    //FIXME This is a bit hacky as TaskId was not declared as part of the advanca_core::Trait
     type TaskId: Parameter
         + Member
         + MaybeSerializeDeserialize
@@ -245,7 +265,10 @@ pub struct WorkerRemovedEvent<T: AdvancaCore> {
 
 #[allow(dead_code)]
 /// The implementation taken from advanca-core module
-fn task_id<T: AdvancaCore>(account_id: &<T as System>::AccountId, account_nonce: <T as System>::Index) -> <T as System>::Hash {
+fn task_id<T: AdvancaCore>(
+    account_id: &<T as System>::AccountId,
+    account_nonce: <T as System>::Index,
+) -> <T as System>::Hash {
     let mut x = account_id.encode();
     account_nonce.using_encoded(|a| x.append(&mut a.to_vec()));
     T::Hashing::hash(&x)
@@ -254,14 +277,25 @@ fn task_id<T: AdvancaCore>(account_id: &<T as System>::AccountId, account_nonce:
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::frame::{
-        system::AccountStoreExt,
-        balances::*,
+    use crate::{
+        advanca::tests::{
+            test_client,
+            TestRuntime,
+        },
+        extrinsic::{
+            PairSigner,
+            Signer,
+        },
+        frame::{
+            balances::*,
+            system::AccountStoreExt,
+        },
     };
-    use crate::advanca::tests::{test_client, TestRuntime};
-    use crate::extrinsic::{PairSigner, Signer};
+    use sp_core::{
+        crypto::Pair,
+        sr25519,
+    };
     use sp_keyring::AccountKeyring;
-    use sp_core::{crypto::Pair, sr25519};
 
     #[async_std::test]
     async fn test_user_registration() {
@@ -286,10 +320,13 @@ mod tests {
             .await
             .unwrap();
 
-        assert_eq!(user, User::<<TestRuntime as System>::AccountId>{
-            account_id: alice.account_id().clone(),
-            public_key: "alice".into(),
-        });
+        assert_eq!(
+            user,
+            User::<<TestRuntime as System>::AccountId> {
+                account_id: alice.account_id().clone(),
+                public_key: "alice".into(),
+            }
+        );
 
         // deregistration
         let event = client
@@ -316,9 +353,13 @@ mod tests {
         let user_account = user_keypair.public().as_array_ref().to_owned().into();
         let user = PairSigner::new(user_keypair);
 
-        client.transfer_and_watch(&alice, &user_account, 10_000_000_000).await.unwrap();
+        client
+            .transfer_and_watch(&alice, &user_account, 10_000_000_000)
+            .await
+            .unwrap();
 
-        let event = client.transfer_and_watch(&user, &AccountKeyring::Alice.to_account_id(), 10)
+        let event = client
+            .transfer_and_watch(&user, &AccountKeyring::Alice.to_account_id(), 10)
             .await
             .unwrap()
             .transfer()
@@ -333,7 +374,6 @@ mod tests {
 
         assert_eq!(event, expected_event);
     }
-
 
     #[async_std::test]
     async fn test_worker_registration() {
@@ -394,20 +434,21 @@ mod tests {
             .unwrap()
             .unwrap();
 
-        let alice_nonce = client.account(alice.account_id(), None).await.unwrap().nonce;
+        let alice_nonce = client
+            .account(alice.account_id(), None)
+            .await
+            .unwrap()
+            .nonce;
         let task_id_alice = task_id::<TestRuntime>(&alice.account_id(), alice_nonce);
         let expected_event = TaskSubmittedEvent {
-            task_id: task_id_alice.clone()
+            task_id: task_id_alice.clone(),
         };
 
         assert_eq!(event, expected_event);
 
         // check the unscheduled tasks
 
-        let unscheduled_tasks = client
-            .unscheduled_tasks(None)
-            .await
-            .unwrap();
+        let unscheduled_tasks = client.unscheduled_tasks(None).await.unwrap();
 
         assert_eq!(unscheduled_tasks, vec![task_id_alice]);
     }

@@ -14,20 +14,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //! runtime
 
-use sp_runtime::{
-    generic::Header,
-    traits::{
-        BlakeTwo256,
-        IdentifyAccount,
-        Verify,
-    },
-    MultiSignature,
-    OpaqueExtrinsic,
-};
 use crate::{
-    extrinsic::{
-        DefaultExtra,
-    },
+    advanca::AdvancaCore,
+    extrinsic::DefaultExtra,
     frame::{
         balances::{
             AccountData,
@@ -37,7 +26,16 @@ use crate::{
         system::System,
     },
     runtimes::Runtime,
-    advanca::AdvancaCore,
+};
+use sp_runtime::{
+    generic::Header,
+    traits::{
+        BlakeTwo256,
+        IdentifyAccount,
+        Verify,
+    },
+    MultiSignature,
+    OpaqueExtrinsic,
 };
 
 /// Concrete type definitions compatible with the Advanca Runtime.
