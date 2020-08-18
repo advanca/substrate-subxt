@@ -32,7 +32,8 @@ codec = { package = "parity-scale-codec", version = "1.3.4", default-features = 
 substrate-subxt-client = { version = "0.3.0", path = "client", optional = true }
 substrate-subxt-proc-macro = { version = "0.11.0", path = "proc-macro" }
 hex = "0.4.2"
-advanca-node-primitives = { rev = "7d01af90ac821c61d63cacb54c6b1c32777bae2a", git = "https://github.com/advanca/advanca-node.git" }
+advanca-node-primitives = { rev = "ac2a74734df7845158597540dcfaaa22dfb7de03", git = "https://github.com/advanca/advanca-node.git" }
+#advanca-node-primitives = { path = "../advanca/advanca-node/advanca-node-primitives/" }
 
 [dependencies.frame-metadata]
 git = 'https://github.com/paritytech/substrate.git'
