@@ -35,6 +35,7 @@ use advanca_node_primitives::{
     TaskStatus,
     User,
     Worker,
+    PublicKeys,
 };
 use codec::{
     Decode,
@@ -111,7 +112,7 @@ pub struct RegisterUserCall<T: AdvancaCore> {
     /// The deposit that registration needs
     pub deposit: <T as Balances>::Balance,
     /// The public key of user
-    pub public_key: Vec<u8>,
+    pub public_keys: PublicKeys,
 }
 
 /// Deregister user
@@ -143,7 +144,9 @@ pub struct SubmitTaskCall<T: AdvancaCore> {
     /// Runtime marker.
     pub _runtime: PhantomData<T>,
     /// Task owner's public key
-    pub signed_owner_task_pubkey: Vec<u8>,
+    pub signed_owner_task_secp256r1_pubkey: Vec<u8>,
+    /// Task owner's public key
+    pub signed_owner_task_sr25519_pubkey: Vec<u8>,
     /// Lease of task
     pub lease: Duration,
     /// Task specification
@@ -174,7 +177,9 @@ pub struct AcceptTaskCall<T: AdvancaCore> {
     /// Task id
     pub task_id: T::TaskId,
     /// Worker's ephemeral key for particular task
-    pub signed_eph_pubkey: Vec<u8>,
+    pub signed_secp256r1_pubkey: Vec<u8>,
+    /// Worker's ephemeral key for particular task
+    pub signed_sr25519_pubkey: Vec<u8>,
     /// Encrypted URL
     pub url: Ciphertext,
 }
