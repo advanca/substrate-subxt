@@ -113,6 +113,16 @@ pub struct ReserveRepatriatedEvent<T: Balances> {
     pub destination_status: Status,
 }
 
+/// Reserved event
+#[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
+pub struct Reserved<T: Balances> {
+    /// From account
+    pub from: <T as System>::AccountId,
+    /// Amount reserved
+    pub amount: T::Balance,
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
