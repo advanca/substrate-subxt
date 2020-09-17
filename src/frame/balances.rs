@@ -115,7 +115,7 @@ pub struct ReserveRepatriatedEvent<T: Balances> {
 
 /// Reserved event
 #[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
-pub struct Reserved<T: Balances> {
+pub struct ReservedEvent<T: Balances> {
     /// From account
     pub from: <T as System>::AccountId,
     /// Amount reserved
