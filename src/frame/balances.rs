@@ -122,6 +122,14 @@ pub struct ReservedEvent<T: Balances> {
     pub amount: T::Balance,
 }
 
+/// Unreserved event
+#[derive(Clone, Debug, Eq, PartialEq, Event, Decode)]
+pub struct UnreservedEvent<T: Balances> {
+    /// From account
+    pub from: <T as System>::AccountId,
+    /// Amount reserved
+    pub amount: T::Balance,
+}
 
 #[cfg(test)]
 mod tests {
